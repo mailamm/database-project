@@ -1,0 +1,221 @@
+Script #1
+DROP TABLE ASSIGNMENT CASCADE CONSTRAINTS;
+DROP TABLE PROJECT CASCADE CONSTRAINTS;
+DROP TABLE CLIENT CASCADE CONSTRAINTS;
+DROP TABLE EMPLOYEE CASCADE CONSTRAINTS;
+DROP TABLE DEPARTMENT CASCADE CONSTRAINTS;
+DROP TABLE TRAINING CASCADE CONSTRAINTS;
+DROP TABLE SKILL CASCADE CONSTRAINTS;
+ 
+CREATE TABLE Skill
+(Code    	VARCHAR2(10),
+ Name    	VARCHAR2(50),
+ Category	VARCHAR2(50),
+ CONSTRAINT Skill_Code_PK PRIMARY KEY (Code));
+ 
+ 
+CREATE TABLE Department 
+(Dept_Code   VARCHAR2(10),
+Name    	VARCHAR2(50),
+Location	VARCHAR2(100),
+Phone   	VARCHAR2(15),
+Manager_ID  NUMBER,
+CONSTRAINT Department_DeptCode_PK PRIMARY KEY (Dept_Code));
+ 
+ 
+CREATE TABLE Employee
+(Emp_Num 	NUMBER,
+ LName   	VARCHAR2(50),
+ FName   	VARCHAR2(50),
+ DOB     	DATE,
+ Hire_Date   DATE DEFAULT SYSDATE,
+ Super_ID	NUMBER,
+ Dept_Code   VARCHAR2(10),
+ CONSTRAINT Employee_EmpNum_PK PRIMARY KEY (Emp_Num),
+ CONSTRAINT Employee_DeptCode_FK FOREIGN KEY (Dept_Code) REFERENCES Department (Dept_Code),
+ CONSTRAINT Employee_SuperID_FK FOREIGN KEY (Super_ID) REFERENCES Employee (Emp_Num),
+ CONSTRAINT Employee_Age_Check CHECK (TRUNC(MONTHS_BETWEEN(Hire_Date, DOB) / 12) >= 17));
+ 
+ 
+ CREATE TABLE Client
+(Client_ID   NUMBER,
+ Name    	VARCHAR2(100),
+ Street  	VARCHAR2(100),
+ City    	VARCHAR2(50),
+ State   	VARCHAR2(50),
+ Zip_Code	VARCHAR2(10),
+ Industry	VARCHAR2(50),
+ Web_Address VARCHAR2(100),
+ Phone   	VARCHAR2(15),
+ Contact_LName VARCHAR2(50),
+ Contact_FName VARCHAR2(50),
+ CONSTRAINT Client_ClientID_PK PRIMARY KEY (Client_ID));
+ 
+CREATE TABLE Project
+(Proj_Number NUMBER,
+ Name    	VARCHAR2(100),
+ Start_Date  DATE DEFAULT SYSDATE,
+ Total_Cost  NUMBER,
+ Dept_Code   VARCHAR2(10),
+ Client_ID   NUMBER,
+ Code    	VARCHAR2(10),
+ CONSTRAINT Project_ProjNumber_PK PRIMARY KEY (Proj_Number),
+ CONSTRAINT Project_DeptCode_FK FOREIGN KEY (Dept_Code) REFERENCES Department (Dept_Code),
+ CONSTRAINT Project_ClientID_FK FOREIGN KEY (Client_ID) REFERENCES Client (Client_ID),
+ CONSTRAINT Project_Code_FK FOREIGN KEY (Code) REFERENCES Skill (Code),
+ CONSTRAINT chk_project_total_cost CHECK (Total_Cost IS NULL OR Total_Cost >= 0));
+ 
+CREATE TABLE Training
+(Train_Num   NUMBER,
+ Code    	VARCHAR2(10),
+ Emp_Num 	NUMBER,
+ Name    	VARCHAR2(100),
+ Date_Acquired DATE,
+ Comments	VARCHAR2(200),
+ CONSTRAINT Training_TrainNum_PK PRIMARY KEY (Train_Num),
+ CONSTRAINT Training_Code_FK FOREIGN KEY (Code) REFERENCES Skill (Code),
+ CONSTRAINT Training_EmpNum_FK FOREIGN KEY (Emp_Num) REFERENCES Employee (Emp_Num));
+ 
+CREATE TABLE Assignment
+(Assign_Num  NUMBER,
+ Proj_Number NUMBER,
+ Emp_Num 	NUMBER,
+ Date_Assigned DATE DEFAULT SYSDATE,
+ Date_Ended  DATE,
+ Hours_Used  NUMBER,
+ CONSTRAINT Assignment_AssignNum_PK PRIMARY KEY (Assign_Num),
+ CONSTRAINT Assignment_ProjNumber_FK FOREIGN KEY (Proj_Number) REFERENCES Project (Proj_Number),
+ CONSTRAINT Assignment_EmpNum_FK FOREIGN KEY (Emp_Num) REFERENCES Employee (Emp_Num),
+ CONSTRAINT Assignment_Date_Check CHECK (TO_CHAR(Date_Assigned, 'YYYY-MM') = TO_CHAR(Date_Ended, 'YYYY-MM')),
+CONSTRAINT Assignment_DateOrder_Check CHECK (Date_Ended IS NULL OR Date_Assigned <= Date_Ended),
+CONSTRAINT chk_assignment_hours CHECK (Hours_Used IS NULL OR Hours_Used >= 0));
+ 
+ALTER TABLE Department
+ADD CONSTRAINT Department_ManagerID_FK FOREIGN KEY (Manager_ID) REFERENCES Employee (Emp_Num);
+ 
+ 
+ 
+ 
+ 
+ 
+Script #2
+
+INSERT INTO Skill VALUES ('S001', 'Data Analysis', 'Technical');
+INSERT INTO Skill VALUES ('S002', 'Project Management', 'Management');
+INSERT INTO Skill VALUES ('S003', 'Software Engineering', 'Technical');
+INSERT INTO Skill VALUES ('S004', 'Financial Analysis', 'Finance');
+INSERT INTO Skill VALUES ('S005', 'Marketing', 'Management');
+INSERT INTO Skill VALUES ('S006', 'Customer Service', 'Support');
+INSERT INTO Skill VALUES ('S007', 'Cybersecurity', 'Technical');
+ 
+INSERT INTO Department VALUES ('D001', 'IT', 'New York', '123-456-7890', null);
+INSERT INTO Department VALUES ('D002', 'Marketing', 'San Francisco', '987-654-3210', null);
+INSERT INTO Department VALUES ('D003', 'Data Science', 'Los Angeles', '555-123-4567', null);
+INSERT INTO Department VALUES ('D004', 'Finance', 'Chicago', '555-987-6543', null);
+INSERT INTO Department VALUES ('D005', 'Operations', 'Houston', '555-321-7654', null);
+INSERT INTO Department VALUES ('D006', 'Sales', 'Boston', '555-432-8765', null);
+INSERT INTO Department VALUES ('D007', 'Administration', 'Seattle', '555-543-9876', null);
+ 
+INSERT INTO Employee VALUES (1001, 'Smith', 'John', TO_DATE('1980-05-15', 'YYYY-MM-DD'), TO_DATE('2015-06-15', 'YYYY-MM-DD'), NULL, 'D007');
+ 
+INSERT INTO Employee VALUES (1002, 'Doe', 'Jane', TO_DATE('1970-08-20', 'YYYY-MM-DD'), TO_DATE('2016-09-12', 'YYYY-MM-DD'), 1001, 'D002');
+INSERT INTO Employee VALUES (1003, 'Johnson', 'Emily', TO_DATE('1985-12-11', 'YYYY-MM-DD'), TO_DATE('2017-04-25', 'YYYY-MM-DD'), 1001, 'D003');
+INSERT INTO Employee VALUES (1004, 'Brown', 'Michael', TO_DATE('1979-04-07', 'YYYY-MM-DD'), TO_DATE('2018-08-30', 'YYYY-MM-DD'), 1001, 'D004');
+INSERT INTO Employee VALUES (1005, 'Davis', 'Sarah', TO_DATE('1992-09-21', 'YYYY-MM-DD'), TO_DATE('2019-01-20', 'YYYY-MM-DD'), 1001, 'D005');
+INSERT INTO Employee VALUES (1006, 'Martinez', 'Carlos', TO_DATE('1983-03-19', 'YYYY-MM-DD'), TO_DATE('2020-03-14', 'YYYY-MM-DD'), 1001, 'D006');
+INSERT INTO Employee VALUES (1007, 'Anderson', 'Jessica', TO_DATE('1995-07-29', 'YYYY-MM-DD'), TO_DATE('2018-05-18', 'YYYY-MM-DD'), 1001, 'D001');
+
+INSERT INTO Employee VALUES (1008, 'Thomas', 'Robert', TO_DATE('1988-10-02', 'YYYY-MM-DD'), TO_DATE('2019-11-07', 'YYYY-MM-DD'), 1002, 'D002');
+INSERT INTO Employee VALUES (1009, 'Lee', 'Michelle', TO_DATE('1993-01-30', 'YYYY-MM-DD'), TO_DATE('2020-07-22', 'YYYY-MM-DD'), 1007, 'D001');
+INSERT INTO Employee VALUES (1010, 'Wilson', 'David', TO_DATE('1981-06-25', 'YYYY-MM-DD'), TO_DATE('2021-02-28', 'YYYY-MM-DD'), 1003, 'D003');
+INSERT INTO Employee VALUES (1011, 'Black', 'Sophia', TO_DATE('1998-04-17', 'YYYY-MM-DD'), TO_DATE('2023-10-10', 'YYYY-MM-DD'), 1004, 'D004');
+INSERT INTO Employee VALUES (1012, 'Green', 'Alice', TO_DATE('1997-03-12', 'YYYY-MM-DD'), TO_DATE('2024-05-10', 'YYYY-MM-DD'), 1005, 'D005');
+INSERT INTO Employee VALUES (1013, 'Ria', 'Wang', TO_DATE('2001-04-17', 'YYYY-MM-DD'), TO_DATE('2024-06-10', 'YYYY-MM-DD'), 1006, 'D006');
+ 
+ 
+INSERT INTO Client VALUES (1, 'Tech Solutions', '123 Innovation Ave', 'Los Angeles', 'CA', '90001', 'Technology', 'techsolutions.com', '555-1010', 'James', 'Allen');
+INSERT INTO Client VALUES (2, 'HealthCare Co', '456 Wellness Blvd', 'Chicago', 'IL', '60601', 'Healthcare', 'healthcareco.org', '555-2020', 'Maria', 'Garcia');
+INSERT INTO Client VALUES (3, 'EcoGreen', '789 Sustainability St', 'Denver', 'CO', '80202', 'Environmental', 'ecogreen.org', '555-3030', 'Susan', 'Hill');
+INSERT INTO Client VALUES (4, 'Alpha Enterprises', '101 Business Park', 'New York', 'NY', '10001', 'Business', 'alphaenterprises.com', '555-4040', 'Daniel', 'Bryant');
+INSERT INTO Client VALUES (5, 'FinServ', '202 Finance Row', 'Houston', 'TX', '77001', 'Finance', 'finserv.com', '555-5050', 'Karen', 'Nguyen');
+INSERT INTO Client VALUES (6, 'MediLab', '303 Health Lane', 'Boston', 'MA', '02101', 'Healthcare', 'medilab.org', '555-6060', 'Laura', 'Hernandez');
+INSERT INTO Client VALUES (7, 'AutoTech', '404 Motor Drive', 'Detroit', 'MI', '48201', 'Automotive', 'autotech.com', '555-7070', 'Steven', 'Lopez');
+INSERT INTO Client VALUES (8, 'RetailHub', '505 Shopping Center', 'San Francisco', 'CA', '94101', 'Retail', 'retailhub.com', '555-8080', 'Nancy', 'Adams');
+INSERT INTO Client VALUES (9, 'EduLearn', '606 Campus Road', 'Atlanta', 'GA', '30301', 'Education', 'edulearn.edu', '555-9090', 'George', 'Young');
+INSERT INTO Client VALUES (10, 'GovSolutions', '707 Federal Way', 'Washington', 'DC', '20001', 'Government', 'govsolutions.gov', '555-1011', 'Michael', 'Jones');
+INSERT INTO Client VALUES (11, 'TechInnovators', '123 Silicon Blvd', 'San Francisco', 'CA', '94107', 'Technology', NULL , '555-2022', 'Sarah', 'Brown');
+INSERT INTO Client VALUES (12, 'GreenTech Solutions', '456 Greenway Blvd', 'Austin', 'TX', '73301', 'Environment', 'www.greentech.tech', '555-3033', 'Alice', 'Green');
+
+ 
+INSERT INTO Project VALUES (101, 'IT Data Analysis Platform', TO_DATE('2021-05-22', 'YYYY-MM-DD'), 90736, 'D001', 1, 'S001');
+INSERT INTO Project VALUES (102, 'Marketing Campaign Management', TO_DATE('2023-08-28', 'YYYY-MM-DD'), 94242, 'D003', 5, 'S002');
+INSERT INTO Project VALUES (103, 'Marketing Software Development', TO_DATE('2024-07-30', 'YYYY-MM-DD'), 30480, 'D003', 3, 'S003');
+INSERT INTO Project VALUES (104, 'Finance Risk Analysis System', TO_DATE('2021-10-26', 'YYYY-MM-DD'), 29424, 'D004', 4, 'S004');
+INSERT INTO Project VALUES (105, 'Operations Efficiency Improvement', TO_DATE('2023-03-24', 'YYYY-MM-DD'), 51903, 'D005', 5, 'S005');
+INSERT INTO Project VALUES (106, 'Sales CRM System Implementation', TO_DATE('2022-09-12', 'YYYY-MM-DD'), 81037, 'D006', 6, 'S006');
+INSERT INTO Project VALUES (107, 'Operations Customer Support Upgrade', TO_DATE('2024-10-20', 'YYYY-MM-DD'), NULL, 'D005', 7, 'S006');
+INSERT INTO Project VALUES (108, 'IT Security Enhancement', TO_DATE('2023-02-15', 'YYYY-MM-DD'), 67289, 'D001', 9, 'S007');
+INSERT INTO Project VALUES (109, 'Sales Financial Reporting System', TO_DATE('2022-04-30', 'YYYY-MM-DD'), 83210, 'D006', 9, 'S004');
+INSERT INTO Project VALUES (110, 'Marketing Strategy Development', TO_DATE('2024-06-12', 'YYYY-MM-DD'), 73954, 'D003', 10, 'S002');
+ 
+
+INSERT INTO Training VALUES (201, 'S001', 1010, 'Advanced Data Analysis', TO_DATE('2023-01-15', 'YYYY-MM-DD'), 'In-house training');
+INSERT INTO Training VALUES (202, 'S003', 1002, 'Agile Software Development', TO_DATE('2023-02-20', 'YYYY-MM-DD'), 'External Workshop');
+INSERT INTO Training VALUES (203, 'S003', 1003, 'Software Engineering Bootcamp', TO_DATE('2023-03-18', 'YYYY-MM-DD'), 'Online Course');
+INSERT INTO Training VALUES (204, 'S004', 1004, 'Financial Analysis Pro', TO_DATE('2023-04-10', 'YYYY-MM-DD'), 'Certification Program');
+INSERT INTO Training VALUES (205, 'S005', 1005, 'Marketing Mastery', TO_DATE('2023-05-25', 'YYYY-MM-DD'), 'In-house training');
+INSERT INTO Training VALUES (206, 'S003', 1006, 'Corporate Financial Planning', TO_DATE('2023-06-15', 'YYYY-MM-DD'), 'Certification Program');
+INSERT INTO Training VALUES (207, 'S001', 1007, 'Big Data Analysis Strategies', TO_DATE('2023-07-05', 'YYYY-MM-DD'), 'Workshop');
+INSERT INTO Training VALUES (208, 'S005', 1008, 'Customer Behavior Analysis', TO_DATE('2023-08-08', 'YYYY-MM-DD'), 'In-house training');
+INSERT INTO Training VALUES (209, 'S005', 1009, 'Marketing Strategies', TO_DATE('2023-09-12', 'YYYY-MM-DD'), 'Online Workshop');
+INSERT INTO Training VALUES (210, 'S001', 1010, 'Advanced Data Interpretation Techniques', TO_DATE('2023-10-18', 'YYYY-MM-DD'), 'Certification Program');
+INSERT INTO Training VALUES (211, 'S005', 1011, 'Content Marketing Strategy', TO_DATE('2023-10-19', 'YYYY-MM-DD'), 'Workshop');
+INSERT INTO Training VALUES (212, 'S005', 1008, 'Customer Behavior Analysis', TO_DATE('2024-10-09', 'YYYY-MM-DD'), 'In-house training');
+INSERT INTO Training VALUES (213, 'S005', 1012, 'Content Marketing Strategy', TO_DATE('2024-06-19', 'YYYY-MM-DD'), 'Workshop');
+INSERT INTO Training VALUES (214, 'S005', 1013, 'Customer Behavior Analysis', TO_DATE('2024-07-09', 'YYYY-MM-DD'), 'In-house training');
+INSERT INTO Training VALUES (215, 'S004', 1013, 'Marketing Strategies', TO_DATE('2024-08-01', 'YYYY-MM-DD'), 'Online Workshop');
+ 
+INSERT INTO Assignment VALUES (311, 101, 1001, TO_DATE('2023-01-01', 'YYYY-MM-DD'), TO_DATE('2023-01-31', 'YYYY-MM-DD'), 80);
+INSERT INTO Assignment VALUES (312, 101, 1008, TO_DATE('2023-01-15', 'YYYY-MM-DD'), TO_DATE('2023-01-30', 'YYYY-MM-DD'), 45);
+ 
+INSERT INTO Assignment VALUES (313, 102, 1002, TO_DATE('2023-02-01', 'YYYY-MM-DD'), TO_DATE('2023-02-28', 'YYYY-MM-DD'), 120);
+INSERT INTO Assignment VALUES (314, 102, 1003, TO_DATE('2023-02-05', 'YYYY-MM-DD'), TO_DATE('2023-02-25', 'YYYY-MM-DD'), 95);
+ 
+INSERT INTO Assignment VALUES (315, 103, 1003, TO_DATE('2024-08-01', 'YYYY-MM-DD'), TO_DATE('2024-08-31', 'YYYY-MM-DD'), 100);
+INSERT INTO Assignment VALUES (316, 103, 1009, TO_DATE('2023-07-10', 'YYYY-MM-DD'), TO_DATE('2023-07-31', 'YYYY-MM-DD'), 75);
+INSERT INTO Assignment VALUES (332, 103, 1009, TO_DATE('2023-08-01', 'YYYY-MM-DD'), TO_DATE('2023-08-20', 'YYYY-MM-DD'), 60);
+INSERT INTO Assignment VALUES (335, 103, 1009, TO_DATE('2023-09-1', 'YYYY-MM-DD'), TO_DATE('2023-09-30', 'YYYY-MM-DD'), 45);
+INSERT INTO Assignment VALUES (336, 103, 1009, TO_DATE('2023-10-1', 'YYYY-MM-DD'), TO_DATE('2023-10-31', 'YYYY-MM-DD'), 50);
+
+INSERT INTO Assignment VALUES (317, 104, 1004, TO_DATE('2023-04-01', 'YYYY-MM-DD'), TO_DATE('2023-04-30', 'YYYY-MM-DD'), 90);
+INSERT INTO Assignment VALUES (318, 104, 1010, TO_DATE('2023-04-05', 'YYYY-MM-DD'), TO_DATE('2023-04-27', 'YYYY-MM-DD'), 80);
+ 
+INSERT INTO Assignment VALUES (319, 105, 1005, TO_DATE('2023-05-01', 'YYYY-MM-DD'), TO_DATE('2023-05-31', 'YYYY-MM-DD'), 110);
+INSERT INTO Assignment VALUES (320, 105, 1007, TO_DATE('2023-05-10', 'YYYY-MM-DD'), TO_DATE('2023-05-30', 'YYYY-MM-DD'), 85);
+ 
+INSERT INTO Assignment VALUES (321, 106, 1006, TO_DATE('2023-06-01', 'YYYY-MM-DD'), TO_DATE('2023-06-30', 'YYYY-MM-DD'), 95);
+INSERT INTO Assignment VALUES (322, 106, 1008, TO_DATE('2023-06-05', 'YYYY-MM-DD'), TO_DATE('2023-06-25', 'YYYY-MM-DD'), 70);
+ 
+INSERT INTO Assignment VALUES (323, 107, 1007, TO_DATE('2024-09-20', 'YYYY-MM-DD'), TO_DATE('2024-09-30', 'YYYY-MM-DD'), 45);
+INSERT INTO Assignment VALUES (334, 107, 1007, TO_DATE('2024-11-01', 'YYYY-MM-DD'), NULL, NULL);
+INSERT INTO Assignment VALUES (324, 107, 1009, TO_DATE('2024-11-05', 'YYYY-MM-DD'), TO_DATE('2024-11-27', 'YYYY-MM-DD'), 75);
+ 
+INSERT INTO Assignment VALUES (325, 108, 1001, TO_DATE('2023-08-01', 'YYYY-MM-DD'), TO_DATE('2023-08-31', 'YYYY-MM-DD'), 90);
+INSERT INTO Assignment VALUES (326, 108, 1006, TO_DATE('2023-08-10', 'YYYY-MM-DD'), TO_DATE('2023-08-30', 'YYYY-MM-DD'), 65);
+ 
+INSERT INTO Assignment VALUES (327, 109, 1008, TO_DATE('2023-09-01', 'YYYY-MM-DD'), TO_DATE('2023-09-30', 'YYYY-MM-DD'), 85);
+INSERT INTO Assignment VALUES (328, 109, 1010, TO_DATE('2023-09-05', 'YYYY-MM-DD'), TO_DATE('2023-09-28', 'YYYY-MM-DD'), 70);
+ 
+INSERT INTO Assignment VALUES (329, 110, 1002, TO_DATE('2024-06-01', 'YYYY-MM-DD'), TO_DATE('2024-06-30', 'YYYY-MM-DD'), 100);
+INSERT INTO Assignment VALUES (330, 110, 1002, TO_DATE('2024-07-01', 'YYYY-MM-DD'), TO_DATE('2024-07-31', 'YYYY-MM-DD'), 100);
+INSERT INTO Assignment VALUES (331, 110, 1005, TO_DATE('2024-07-10', 'YYYY-MM-DD'), TO_DATE('2024-07-31', 'YYYY-MM-DD'), 75);
+INSERT INTO Assignment VALUES (333, 110, 1013, TO_DATE('2024-07-10', 'YYYY-MM-DD'), TO_DATE('2024-07-31', 'YYYY-MM-DD'), 55);
+INSERT INTO Assignment VALUES (337, 110, 1013, TO_DATE('2024-08-1', 'YYYY-MM-DD'), TO_DATE('2024-08-31', 'YYYY-MM-DD'), 90);
+ 
+UPDATE Department SET Manager_ID = 1007 WHERE Dept_Code = 'D001';
+UPDATE Department SET Manager_ID = 1002 WHERE Dept_Code = 'D002';
+UPDATE Department SET Manager_ID = 1003 WHERE Dept_Code = 'D003';
+UPDATE Department SET Manager_ID = 1004 WHERE Dept_Code = 'D004';
+UPDATE Department SET Manager_ID = 1005 WHERE Dept_Code = 'D005';
+UPDATE Department SET Manager_ID = 1006 WHERE Dept_Code = 'D006';
+UPDATE Department SET Manager_ID = 1001 WHERE Dept_Code = 'D007';
