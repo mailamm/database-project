@@ -25,7 +25,7 @@ The database consists of multiple tables that define the structure of Homer Cons
 ---
 
 ## 📊 SQL Queries
-This project includes various SQL queries for data retrieval and analysis, stored in **`queries.txt`**.
+This project includes various SQL queries for data retrieval and analysis, stored in **`queries.md`**.
 
 ### **1️⃣ Employee Training Summary by Skill**
 ```sql
@@ -74,7 +74,7 @@ ORDER BY d.name, "Rank";
 );
 ```
 
-📌 **For more queries, check `queries.sql`.**
+📌 **For more queries, check `queries.md`.**
 
 ---
 
