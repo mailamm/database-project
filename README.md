@@ -9,24 +9,6 @@ The database is designed to:
 - Record employee training and skill acquisition.
 - Manage project assignments and work hours.
 
----
-
-## 📂 Project Structure
-```plaintext
-DBM_Project/
-│── queries/
-│   ├── create_tables.txt    # SQL script for creating tables with constraints
-│   ├── insert_data.txt      # SQL script to populate tables with sample data
-│   ├── queries.md         # SQL queries for retrieving and analyzing data
-│── data/
-│   ├── sample_data.pdf      # Sample dataset for testing queries
-│── docs/
-│   ├── project_overview.md  # Detailed database documentation
-│── README.md                # Project documentation
-│── .gitignore               # Ignores unnecessary files
-```
-
----
 
 ## 🛠 Database Schema
 ### **Entities & Relationships**
